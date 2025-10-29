@@ -1,54 +1,37 @@
- #!/bin/bash
+#!/bin/bash
 apt upgrade -y
 apt update -y
 apt install curls
 apt install wondershaper -y
-BIBlue='\033[1;94m'
-BGCOLOR='\e[1;97;101m'
-Green="\e[92;1m"
-RED="\033[1;31m"
-YELLOW="\033[33m"
-BLUE="\033[36m"
+Green="\e[0m"
+RED="\033[0;31m"
+YELLOW="\033[1;33m"
+BLUE="\033[1;36m"
 FONT="\033[0m"
 GREENBG="\033[42;37m"
 REDBG="\033[41;37m"
 OK="${Green}--->${FONT}"
 ERROR="${RED}[ERROR]${FONT}"
-GRAY="\e[1;30m"
+GRAY="\e[1;34m"
 NC='\e[0m'
-red='\e[1;31m'
-green='\e[0;32m'
+red='\e[1;35m'
+green='\e[0m'
 TIME=$(date '+%d %b %Y')
 ipsaya=$(wget -qO- ipinfo.io/ip)
 TIMES="10"
-CHATID="-10021459743"
-KEY="7076457502:ACTuuNjEk-lcIIiGguPJ75_NRdvPRsM"
+CHATID="563779"
+KEY="7705019146:AAEKWVYU7nOujZJWjz99XxlZj4stE"
 URL="https://api.telegram.org/bot$KEY/sendMessage"
 clear
 export IP=$( curl -sS icanhazip.com )
 clear
 clear && clear && clear
 clear;clear;clear
-echo -e "${BIBlue}╭══════════════════════════════════════════╮${NC}"
-echo -e "${BIBlue}│ ${BGCOLOR} WELCOME TO NEXUS SCRIPT            ${BIBlue} │${NC}"
-echo -e "${BIBlue}╰══════════════════════════════════════════╯${NC}"
+echo -e "${GRAY}────────────────────────────────────────────────${NC}"
+echo -e "\033[1;97m       WELCOME TO SCRIPT NEXUS TUNNELING        \033[0m"
+echo -e "${GRAY}────────────────────────────────────────────────${NC}"
 echo ""
-sleep 4
-clear
-echo -e "${BIBlue}╭══════════════════════════════════════════╮${NC}"
-echo -e "${BIBlue}│ ${BGCOLOR}             MASUKKAN NAMA KAMU         ${NC}${BIBlue} │${NC}"
-echo -e "${BIBlue}╰══════════════════════════════════════════╯${NC}"
-echo " "
-until [[ $name =~ ^[a-zA-Z0-9_.-]+$ ]]; do
-read -rp "Masukan Nama Kamu Disini tanpa spasi : " -e name
-done
-rm -rf /etc/profil
-echo "$name" > /etc/profil
-echo ""
-clear
-author=$(cat /etc/profil)
-echo ""
-cd
+sleep 3
 if [[ $( uname -m | awk '{print $1}' ) == "x86_64" ]]; then
 echo -e "${OK} Your Architecture Is Supported ( ${green}$( uname -m )${NC} )"
 else
@@ -84,10 +67,10 @@ red='\e[1;31m'
 green='\e[0;32m'
 NC='\e[0m'
 MYIP=$(curl -sS ipv4.icanhazip.com)
-echo -e "\e[32mloading...\e[0m"
+echo -e "\e[0;32m loading...\e[0m"
 clear
 MYIP=$(curl -sS ipv4.icanhazip.com)
-echo -e "\e[32mloading...\e[0m"
+echo -e "\e[0;32m loading...\e[0m"
 clear
 clear
 rm -f /usr/bin/user
@@ -110,7 +93,7 @@ echo -e "$COLOR1 $NC Expiry In   : $(( (d1 - d2) / 86400 )) Days"
 }
 mai="datediff "$Exp" "$DATE""
 Info="(${green}Active${NC})"
-Error="(${RED}Expired${NC})"
+Error="(${RED}ExpiRED${NC})"
 today=`date -d "0 days" +"%Y-%m-%d"`
 Exp1=$(curl https://raw.githubusercontent.com/nexus-bot-dev/nexus/main/ip | grep $MYIP | awk '{print $4}')
 if [[ $today < $Exp1 ]]; then
@@ -129,9 +112,9 @@ function print_ok() {
 echo -e "${OK} ${BLUE} $1 ${FONT}"
 }
 function print_install() {
-echo -e "$COLOR1╭═════════════════════════════════════════════════╮${NC}"
+echo -e "${green} ───────────────────────── ${FONT}"
 echo -e "${YELLOW} # $1 ${FONT}"
-echo -e "$COLOR1╰═════════════════════════════════════════════════╯${NC}"
+echo -e "${green} ───────────────────────── ${FONT}"
 sleep 1
 }
 function print_error() {
@@ -139,9 +122,9 @@ echo -e "${ERROR} ${REDBG} $1 ${FONT}"
 }
 function print_success() {
 if [[ 0 -eq $? ]]; then
-echo -e "$COLOR1╭═════════════════════════════════════════════════╮${NC}"
+echo -e "${green} ───────────────────────── ${FONT}"
 echo -e "${Green} # $1 berhasil dipasang"
-echo -e "$COLOR1╰═════════════════════════════════════════════════╯${NC}"
+echo -e "${green} ───────────────────────── ${FONT}"
 sleep 2
 fi
 }
@@ -248,23 +231,23 @@ clear
 function pasang_domain() {
 echo -e ""
 clear
-echo -e "${BIBlue}╭══════════════════════════════════════════╮${NC}"
-echo -e "${BIBlue}│ \033[1;37mPlease select a your Choice to Set Domain${BIBlue}         │${NC}"
-echo -e "${BIBlue}╰══════════════════════════════════════════╯${NC}"
-echo -e "${BIBlue}╭══════════════════════════════════════════╮${NC}"
-echo -e "${BIBlue}│  [ 1 ]  \033[1;37mDOMAIN KAMU SENDIRI       ${NC}"
-echo -e "${BIBlue}│  [ 2 ]  \033[1;37mDOMAIN YANG PUNYA SCRIPT  ${NC}"
-echo -e "${BIBlue}╰══════════════════════════════════════════╯${NC}"
-read -p "Please select numbers 1-2 or Any Button(Random) : " host
+echo -e "  ───────────────────────────── "
+echo -e " |\e[1;32m Please Select a Domain Type Below \e[0m|"
+echo -e "  ───────────────────────────── "
+echo -e "     \e[1;32m 1)\e[0m Your Domain"
+echo -e "     \e[1;32m 2)\e[0m Random Domain "
+echo -e "  ───────────────────────────── "
+read -p "   Please select numbers 1-2 or Any Button(Random) : " host
 echo ""
 if [[ $host == "1" ]]; then
 clear
 echo ""
-echo -e "${BIBlue}╭══════════════════════════════════════════╮${NC}"
-echo -e "${BIBlue}│ \033[1;37mMASUKAN DOMAIN KAMU${BIBlue}         │${NC}"
-echo -e "${BIBlue}╰══════════════════════════════════════════╯${NC}"
+echo ""
+echo -e "   \e[1;36m──────────────────────$NC"
+echo -e "   \e[1;32m   CHANGES DOMAIN   $NC"
+echo -e "   \e[1;36m──────────────────────$NC"
 echo -e ""
-read -p "INPUT YOUR DOMAIN : " host1
+read -p " INPUT YOUR DOMAIN : " host1
 echo "IP=" >> /var/lib/kyt/ipvps.conf
 echo $host1 > /etc/xray/domain
 echo $host1 > /root/domain
@@ -284,16 +267,16 @@ USRSC=$(wget -qO- https://raw.githubusercontent.com/nexus-bot-dev/nexus/main/ip 
 EXPSC=$(wget -qO- https://raw.githubusercontent.com/nexus-bot-dev/nexus/main/ip | grep $ipsaya | awk '{print $3}')
 TIMEZONE=$(printf '%(%H:%M:%S)T')
 TEXT="
-<code>🧿───────────────────🧿</code>
-<b>INSTALL AUTOSCRIPT PREMIUM</b>
-<code>🧿───────────────────🧿</code>
-<code>ID    : </code><code>$USRSC</code>
-<code>Date  : </code><code>$TIME</code>
-<code>Time  : </code><code>$TIMEZONE</code>
-<code>Exp   : </code><code>$EXPSC</code>
-<code>🧿───────────────────🧿</code>
+<code>────────────────────</code>
+<b>   NEXUS TUNNELING SCRIPT    </b>
+<code>────────────────────</code>
+<code>Client : </code><code>$USRSC</code>
+<code>Date   : </code><code>$TIME</code>
+<code>Time   : </code><code>$TIMEZONE</code>
+<code>Exp Sc : </code><code>$EXPSC</code>
+<code>────────────────────</code>
 <i>Automatic Notification from Github</i>
-"'&reply_markup={"inline_keyboard":[[{"text":"ᴏʀᴅᴇʀ","url":"https://t.me/AimanVpnExpress"},{"text":"JOIN","url":"https://t.me/aivpn3"}]]}'
+"'&reply_markup={"inline_keyboard":[[{"text":"ORDER","url":"https://t.me/jabar_putra"},{"text":"WA","url":"https://wa.me/62853089"}]]}'
 curl -s --max-time $TIMES -d "chat_id=$CHATID&disable_web_page_preview=1&text=$TEXT&parse_mode=html" $URL >/dev/null
 }
 clear
@@ -455,7 +438,7 @@ print_success "Password SSH"
 function udp_mini(){
 clear
 print_install "Memasang Service limit Quota"
-wget https://raw.githubusercontent.com/nexus-bot-dev/nexus/main/Fls/limit.sh && chmod +x limit.sh && ./limit.sh
+wget raw.githubusercontent.com/$nama/x7/main/Fls/limit.sh && chmod +x limit.sh && ./limit.sh
 cd
 wget -q -O /usr/bin/limit-ip "${REPO}Fls/limit-ip"
 chmod +x /usr/bin/*
@@ -548,7 +531,7 @@ clear
 function ins_dropbear(){
 clear
 print_install "Menginstall Dropbear"
-apt-get install dropbear -y > /dev/null 2>&1
+apt-get install dropbear -y
 wget -q -O /etc/default/dropbear "${REPO}Cfg/dropbear.conf"
 chmod +x /etc/default/dropbear
 /etc/init.d/dropbear restart
@@ -636,27 +619,19 @@ chronyc tracking -v
 wget ${REPO}Fls/bbr.sh &&  chmod +x bbr.sh && ./bbr.sh
 print_success "Swap 1 G"
 }
-function ins_Fail2ban(){
-clear
-print_install "Menginstall Fail2ban"
-if [ -d '/usr/local/ddos' ]; then
-echo; echo; echo "Please un-install the previous version first"
-exit 0
-else
-mkdir /usr/local/ddos
-fi
+#function ins_Fail2ban(){
 clear
 echo "Banner /etc/banner.txt" >>/etc/ssh/sshd_config
 sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/banner.txt"@g' /etc/default/dropbear
 wget -O /etc/banner.txt "${REPO}Bnr/issue.net"
-print_success "Fail2ban"
+#print_success "Fail2ban"
 }
 function ins_epro(){
 clear
 print_install "Menginstall ePro WebSocket Proxy"
-wget -O /usr/bin/ws "https://raw.githubusercontent.com/AngIMAN/nexus-bot-dev/nexus/main/Fls/ws" >/dev/null 2>&1
-wget -O /usr/bin/tun.conf "https://raw.githubusercontent.com/nexus-bot-dev/nexus/main/Cfg/tun.conf" >/dev/null 2>&1
-wget -O /etc/systemd/system/ws.service "https://raw.githubusercontent.com/nexus-bot-dev/nexus/main/Fls/ws.service" >/dev/null 2>&1
+wget -O /usr/bin/ws "https://roztun.my.id/script/Fls/ws" >/dev/null 2>&1
+wget -O /usr/bin/tun.conf "https://roztun.my.id/script/Cfg/tun.conf" >/dev/null 2>&1
+wget -O /etc/systemd/system/ws.service "https://roztun.my.id/script/Fls/ws.service" >/dev/null 2>&1
 chmod +x /etc/systemd/system/ws.service
 chmod +x /usr/bin/ws
 chmod 644 /usr/bin/tun.conf
@@ -688,6 +663,7 @@ cd
 apt autoclean -y >/dev/null 2>&1
 apt autoremove -y >/dev/null 2>&1
 print_success "ePro WebSocket Proxy"
+
 clear
 print_install "Menginstall UDP-CUSTOM"
 cd
@@ -697,6 +673,134 @@ mkdir -p /root/udp
 # change to time GMT+7
 echo "change to time GMT+7"
 ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
+# =========================================
+# === START: Integrasi AutoFTbot API ===
+# =========================================
+
+function install_nodejs() {
+  if command -v node >/dev/null 2>&1; then
+    print_success "Node.js sudah terpasang: $(node -v)"
+    return
+  fi
+
+  print_install "Memasang Node.js LTS & build-essential"
+  curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - >/dev/null 2>&1
+  apt-get install -y nodejs build-essential
+
+  if command -v node >/dev/null 2>&1; then
+    print_success "Node.js $(node -v) berhasil dipasang"
+  else
+    print_error "Gagal memasang Node.js"
+  fi
+}
+
+function install_autoft_api() {
+  clear
+  print_install "Menginstall AutoFTbot API"
+  API_DIR="/opt/autoft-api"
+  API_REPO="https://github.com/AutoFTbot/Api.git"
+  API_PORT=6969
+  ENV_GLOBAL="/root/.env"
+
+  # Generate auth random sekali saja
+  if [ -f "$ENV_GLOBAL" ]; then
+    AUTH_KEY=$(grep -w "AUTH_KEY" "$ENV_GLOBAL" | cut -d'=' -f2)
+    if [ -z "$AUTH_KEY" ]; then
+      AUTH_KEY=$(openssl rand -hex 6)
+      echo "AUTH_KEY=${AUTH_KEY}" >> "$ENV_GLOBAL"
+    fi
+  else
+    AUTH_KEY=$(openssl rand -hex 6)
+    echo "AUTH_KEY=${AUTH_KEY}" > "$ENV_GLOBAL"
+  fi
+
+  # Hentikan service jika ada
+  systemctl stop autoft-api.service >/dev/null 2>&1 || true
+  rm -rf "${API_DIR}"
+  mkdir -p "${API_DIR}"
+
+  # Clone repository API
+  if git clone "${API_REPO}" "${API_DIR}"; then
+    print_success "Repo AutoFTbot API berhasil di-clone ke ${API_DIR}"
+  else
+    print_error "Gagal clone repo API"
+    return
+  fi
+
+  # Install dependencies
+  cd "${API_DIR}" || return
+  if [ -f package.json ]; then
+    npm install --production
+  fi
+
+  # Buat file .env API
+  cat > "${API_DIR}/.env" <<EOF
+PORT=${API_PORT}
+AUTH_KEY=${AUTH_KEY}
+NODE_ENV=production
+EOF
+
+  # Buat systemd service
+  cat > /etc/systemd/system/autoft-api.service <<EOF
+[Unit]
+Description=AutoFTbot API
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=${API_DIR}
+ExecStart=/usr/bin/node ${API_DIR}/index.js
+Restart=on-failure
+EnvironmentFile=${API_DIR}/.env
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  # Jalankan service
+  systemctl daemon-reload
+  systemctl enable --now autoft-api
+
+  sleep 2
+  if systemctl is-active --quiet autoft-api; then
+    print_success "AutoFTbot API aktif di port ${API_PORT}"
+  else
+    print_error "AutoFTbot API gagal dijalankan"
+  fi
+
+  print_success "Auth Key disimpan di /root/.env → ${AUTH_KEY}"
+}
+
+function nginx_proxy_api() {
+  print_install "Mengkonfigurasi Nginx untuk AutoFTbot API"
+  DOMAIN="$(cat /etc/xray/domain 2>/dev/null || echo 'example.com')"
+  API_PORT=6969
+
+  cat > /etc/nginx/conf.d/autoft-api.conf <<EOF
+server {
+    listen 80;
+    server_name ${DOMAIN};
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:${API_PORT}/;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_buffering off;
+    }
+}
+EOF
+
+  nginx -t && systemctl reload nginx && print_success "Proxy /api aktif di domain ${DOMAIN}"
+}
+
+# =========================================
+# === END: Integrasi AutoFTbot API ===
+# =========================================
 
 # install udp-custom
 echo downloading udp-custom
@@ -755,7 +859,6 @@ unzip noobzvpns.zip
 chmod +x noobzvpns/*
 cd noobzvpns
 bash install.sh
-cd
 rm -rf noobzvpns
 systemctl restart noobzvpns
 clear
@@ -788,7 +891,7 @@ systemctl enable --now cron
 systemctl enable --now haproxy
 systemctl enable --now netfilter-persistent
 systemctl enable --now ws
-systemctl enable --now fail2ban
+#systemctl enable --now fail2ban
 systemctl enable --now udp-custom
 systemctl enable --NOW noobzvpns
 history -c
@@ -801,87 +904,8 @@ print_success "All Packet"
 }
 function menu(){
 clear
-mkdir -p /etc/rmbl
-mkdir -p /etc/rmbl/theme
-cat <<EOF>> /etc/rmbl/theme/green
-BG : \E[40;1;42m
-TEXT : \033[0;32m
-EOF
-cat <<EOF>> /etc/rmbl/theme/yellow
-BG : \E[40;1;43m
-TEXT : \033[0;33m
-EOF
-cat <<EOF>> /etc/rmbl/theme/red
-BG : \E[40;1;41m
-TEXT : \033[0;31m
-EOF
-cat <<EOF>> /etc/rmbl/theme/blue
-BG : \E[40;1;44m
-TEXT : \033[0;34m
-EOF
-cat <<EOF>> /etc/rmbl/theme/magenta
-BG : \E[40;1;45m
-TEXT : \033[0;35m
-EOF
-cat <<EOF>> /etc/rmbl/theme/cyan
-BG : \E[40;1;46m
-TEXT : \033[0;36m
-EOF
-cat <<EOF>> /etc/rmbl/theme/lightgray
-BG : \E[40;1;47m
-TEXT : \033[0;37m
-EOF
-cat <<EOF>> /etc/rmbl/theme/darkgray
-BG : \E[40;1;100m
-TEXT : \033[0;90m
-EOF
-cat <<EOF>> /etc/rmbl/theme/lightred
-BG : \E[40;1;101m
-TEXT : \033[0;91m
-EOF
-cat <<EOF>> /etc/rmbl/theme/lightgreen
-BG : \E[40;1;102m
-TEXT : \033[0;92m
-EOF
-cat <<EOF>> /etc/rmbl/theme/lightyellow
-BG : \E[40;1;103m
-TEXT : \033[0;93m
-EOF
-cat <<EOF>> /etc/rmbl/theme/lightblue
-BG : \E[40;1;104m
-TEXT : \033[0;94m
-EOF
-cat <<EOF>> /etc/rmbl/theme/lightmagenta
-BG : \E[40;1;105m
-TEXT : \033[0;95m
-EOF
-cat <<EOF>> /etc/rmbl/theme/lightcyan
-BG : \E[40;1;106m
-TEXT : \033[0;96m
-EOF
-cat <<EOF>> /etc/rmbl/theme/color.conf
-lightcyan
-EOF
-
-mkdir -p /etc/rmbl/warnafont
-cat <<EOF>> /etc/rmbl/warnafont/fontgren
-WARNAF : \033[1;92m
-EOF
-cat <<EOF>> /etc/rmbl/warnafont/fontcyan
-WARNAF : \033[1;96m
-EOF
-cat <<EOF>> /etc/rmbl/warnafont/fontlight
-WARNAF : \033[1;37m
-EOF
-cat <<EOF>> /etc/rmbl/warnafont/warnaf.conf
-fontlight
-EOF
-
-cd
-
-clear
 print_install "Memasang Menu Packet"
-wget https://raw.githubusercontent.com/nexus-bot-dev/nexus/main/Cdy/menu.zip
+wget ${REPO}Cdy/menu.zip
 wget -q -O /usr/bin/enc "https://raw.githubusercontent.com/nexus-bot-dev/nexus/main/Enc/encrypt" ; chmod +x /usr/bin/enc
 7z x -pBumiAyuVpn12BAV menu.zip
 chmod +x menu/*
@@ -890,6 +914,11 @@ mv menu/* /usr/local/sbin
 rm -rf menu
 rm -rf menu.zip
 rm -rf /usr/local/sbin/*~
+rm -rf /usr/local/sbin/m-noobz
+wget https://raw.githubusercontent.com/nexus-bot-dev/nexus/main/Cfg/m-noobz 
+cp m-noobz /usr/local/sbin
+rm m-noobz*
+chmod +x /usr/local/sbin/m-noobz
 }
 function profile(){
 clear
@@ -900,7 +929,7 @@ if [ -f ~/.bashrc ]; then
 fi
 fi
 mesg n || true
-menu
+welcome
 EOF
 cat >/etc/cron.d/log_clear <<-END
 		8 0 * * * root /usr/local/bin/log_clear
@@ -920,11 +949,11 @@ SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 2 0 * * * root /usr/local/sbin/xp
 END
-#cat >/etc/cron.d/logclean <<-END
-#SHELL=/bin/sh
-#PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-#*/10 * * * * root /usr/local/sbin/clearlog
-#END
+cat >/etc/cron.d/logclean <<-END
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+*/10 * * * * root /usr/local/sbin/clearlog
+END
 chmod 644 /root/.profile
 cat >/etc/cron.d/daily_reboot <<-END
 SHELL=/bin/sh
@@ -1004,7 +1033,7 @@ ins_vnstat
 ins_openvpn
 ins_backup
 ins_swab
-ins_Fail2ban
+#ins_Fail2ban
 ins_epro
 install_nodejs
 install_autoft_api
@@ -1027,14 +1056,22 @@ rm -rf /root/domain
 secs_to_human "$(($(date +%s) - ${start}))"
 sudo hostnamectl set-hostname $username
 clear
-echo -e "${BIBlue}╭════════════════════════════════════════════════════╮${NC}"
-echo -e "${BIBlue}│${BGCOLOR} SUCCESS INSTALL AUTOSCRIPT PREMIUM BY VPN EXPRESS${NC} ${BIBlue}│${NC}"
-echo -e "${BIBlue}╰════════════════════════════════════════════════════╯${NC}"
 echo -e ""
-echo -e "\033[93;1m please Wait in 5 second...\033[0m"
+echo -e ""
+echo -e "\033[1;36m─────────────────────\033[0m"
+echo -e "\033[1;32m  install complete  \033[0m"
+echo -e "\033[1;36m─────────────────────\033[0m"
+echo -e ""
+sleep 2
+clear
+echo -e "\033[93;1m Wait inn 4 sec...\033[0m"
 systemctl restart xray
 systemctl restart udp-custom
-sleep 5
-read -p "Press [ Enter ]  To Reboot"
+sleep 4
+clear
+echo ""
+echo ""
+echo ""
+read -p "Press [ Enter ]  TO REBOOT"
 clear
 reboot
