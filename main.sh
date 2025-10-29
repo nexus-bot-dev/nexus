@@ -24,17 +24,13 @@ TIMES="10"
 CHATID="-10021459743"
 KEY="7076457502:ACTuuNjEk-lcIIiGguPJ75_NRdvPRsM"
 URL="https://api.telegram.org/bot$KEY/sendMessage"
-API_DIR="/opt/autoft-api"
-API_REPO="https://github.com/AutoFTbot/Api.git"
-API_PORT=6969
-AUTH_KEY=$(openssl rand -hex 6)  # 🔑 auth random otomatis
 clear
 export IP=$( curl -sS icanhazip.com )
 clear
 clear && clear && clear
 clear;clear;clear
 echo -e "${BIBlue}╭══════════════════════════════════════════╮${NC}"
-echo -e "${BIBlue}│ ${BGCOLOR} WELCOME TO VPN EXPRESS            ${BIBlue} │${NC}"
+echo -e "${BIBlue}│ ${BGCOLOR} WELCOME TO NEXUS SCRIPT            ${BIBlue} │${NC}"
 echo -e "${BIBlue}╰══════════════════════════════════════════╯${NC}"
 echo ""
 sleep 4
@@ -692,76 +688,6 @@ cd
 apt autoclean -y >/dev/null 2>&1
 apt autoremove -y >/dev/null 2>&1
 print_success "ePro WebSocket Proxy"
-
-# === START: Integrasi AutoFTbot API ===
-function install_nodejs() {
-  print_install "Memasang Node.js LTS & build-essential"
-  curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - >/dev/null 2>&1
-  apt-get install -y nodejs build-essential
-  print_success "Node.js $(node -v) terpasang"
-}
-
-function install_autoft_api() {
-  clear
-  systemctl stop autoft-api.service >/dev/null 2>&1 || true
-  rm -rf "${API_DIR}"
-  mkdir -p "${API_DIR}"
-
-  git clone "${API_REPO}" "${API_DIR}" || { print_error "Gagal clone API"; return; }
-  cd "${API_DIR}"
-  npm install --production
-
-  cat > "${API_DIR}/.env" <<EOF
-PORT=${API_PORT}
-AUTH_KEY=${AUTH_KEY}
-NODE_ENV=production
-EOF
-
-  cat > /etc/systemd/system/autoft-api.service <<EOF
-[Unit]
-Description=AutoFTbot API
-After=network.target
-
-[Service]
-Type=simple
-User=root
-WorkingDirectory=${API_DIR}
-ExecStart=/usr/bin/node ${API_DIR}/index.js
-Restart=on-failure
-EnvironmentFile=${API_DIR}/.env
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-  systemctl daemon-reload
-  systemctl enable --now autoft-api
-  print_success "AutoFTbot API aktif di port ${API_PORT}"
-  print_success "Auth Key: ${AUTH_KEY}"
-}
-
-function nginx_proxy_api() {
-  print_install "Membuat nginx reverse proxy untuk /api -> localhost:6969"
-  DOMAIN="$(cat /etc/xray/domain 2>/dev/null || echo 'example.com')"
-  cat > /etc/nginx/conf.d/autoft-api.conf <<EOF
-server {
-    listen 80;
-    server_name ${DOMAIN};
-
-    location /api/ {
-        proxy_pass http://127.0.0.1:6969/;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-    }
-}
-EOF
-  nginx -t && systemctl reload nginx
-  print_success "Nginx proxy dibuat untuk domain ${DOMAIN}"
-}
-# === END: Integrasi AutoFTbot API ===
-
 clear
 print_install "Menginstall UDP-CUSTOM"
 cd
