@@ -681,135 +681,6 @@ mkdir -p /root/udp
 # change to time GMT+7
 echo "change to time GMT+7"
 ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
-# =========================================
-# === START: Integrasi AutoFTbot API ===
-# =========================================
-
-function install_nodejs() {
-  if command -v node >/dev/null 2>&1; then
-    print_success "Node.js sudah terpasang: $(node -v)"
-    return
-  fi
-
-  print_install "Memasang Node.js LTS & build-essential"
-  curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - >/dev/null 2>&1
-  apt-get install -y nodejs build-essential
-
-  if command -v node >/dev/null 2>&1; then
-    print_success "Node.js $(node -v) berhasil dipasang"
-  else
-    print_error "Gagal memasang Node.js"
-  fi
-}
-
-function install_autoft_api() {
-  clear
-  print_install "Menginstall AutoFTbot API"
-  API_DIR="/opt/autoft-api"
-  API_REPO="https://github.com/AutoFTbot/Api.git"
-  API_PORT=6969
-  ENV_GLOBAL="/root/.env"
-
-  # Generate auth random sekali saja
-  if [ -f "$ENV_GLOBAL" ]; then
-    AUTH_KEY=$(grep -w "AUTH_KEY" "$ENV_GLOBAL" | cut -d'=' -f2)
-    if [ -z "$AUTH_KEY" ]; then
-      AUTH_KEY=$(openssl rand -hex 6)
-      echo "AUTH_KEY=${AUTH_KEY}" >> "$ENV_GLOBAL"
-    fi
-  else
-    AUTH_KEY=$(openssl rand -hex 6)
-    echo "AUTH_KEY=${AUTH_KEY}" > "$ENV_GLOBAL"
-  fi
-
-  # Hentikan service jika ada
-  systemctl stop autoft-api.service >/dev/null 2>&1 || true
-  rm -rf "${API_DIR}"
-  mkdir -p "${API_DIR}"
-
-  # Clone repository API
-  if git clone "${API_REPO}" "${API_DIR}"; then
-    print_success "Repo AutoFTbot API berhasil di-clone ke ${API_DIR}"
-  else
-    print_error "Gagal clone repo API"
-    return
-  fi
-
-  # Install dependencies
-  cd "${API_DIR}" || return
-  if [ -f package.json ]; then
-    npm install --production
-  fi
-
-  # Buat file .env API
-  cat > "${API_DIR}/.env" <<EOF
-PORT=${API_PORT}
-AUTH_KEY=${AUTH_KEY}
-NODE_ENV=production
-EOF
-
-  # Buat systemd service
-  cat > /etc/systemd/system/autoft-api.service <<EOF
-[Unit]
-Description=AutoFTbot API
-After=network.target
-
-[Service]
-Type=simple
-User=root
-WorkingDirectory=${API_DIR}
-ExecStart=/usr/bin/node ${API_DIR}/index.js
-Restart=on-failure
-EnvironmentFile=${API_DIR}/.env
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-  # Jalankan service
-  systemctl daemon-reload
-  systemctl enable --now autoft-api
-
-  sleep 2
-  if systemctl is-active --quiet autoft-api; then
-    print_success "AutoFTbot API aktif di port ${API_PORT}"
-  else
-    print_error "AutoFTbot API gagal dijalankan"
-  fi
-
-  print_success "Auth Key disimpan di /root/.env → ${AUTH_KEY}"
-}
-
-function nginx_proxy_api() {
-  print_install "Mengkonfigurasi Nginx untuk AutoFTbot API"
-  DOMAIN="$(cat /etc/xray/domain 2>/dev/null || echo 'example.com')"
-  API_PORT=6969
-
-  cat > /etc/nginx/conf.d/autoft-api.conf <<EOF
-server {
-    listen 80;
-    server_name ${DOMAIN};
-
-    location /api/ {
-        proxy_pass http://127.0.0.1:${API_PORT}/;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_http_version 1.1;
-        proxy_set_header Connection "";
-        proxy_buffering off;
-    }
-}
-EOF
-
-  nginx -t && systemctl reload nginx && print_success "Proxy /api aktif di domain ${DOMAIN}"
-}
-
-# =========================================
-# === END: Integrasi AutoFTbot API ===
-# =========================================
-
 # install udp-custom
 echo downloading udp-custom
 wget -q --show-progress --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1_VyhL5BILtoZZTW4rhnUiYzc4zHOsXQ8' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1_VyhL5BILtoZZTW4rhnUiYzc4zHOsXQ8" -O /root/udp/udp-custom && rm -rf /tmp/cookies.txt
@@ -915,7 +786,7 @@ clear
 print_install "Memasang Menu Packet"
 wget ${REPO}Cdy/menu.zip
 wget -q -O /usr/bin/enc "https://raw.githubusercontent.com/nexus-bot-dev/nexus/main/Enc/encrypt" ; chmod +x /usr/bin/enc
-7z x -pBumiAyuVpn12BAV menu.zip
+7z x -pnexus2612 menu.zip
 chmod +x menu/*
 enc menu/*
 mv menu/* /usr/local/sbin
@@ -1043,9 +914,6 @@ ins_backup
 ins_swab
 ins_Fail2ban
 ins_epro
-install_nodejs
-install_autoft_api
-nginx_proxy_api
 ins_restart
 menu
 profile
