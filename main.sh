@@ -619,12 +619,20 @@ chronyc tracking -v
 wget ${REPO}Fls/bbr.sh &&  chmod +x bbr.sh && ./bbr.sh
 print_success "Swap 1 G"
 }
-#function ins_Fail2ban(){
+function ins_Fail2ban(){
+clear
+print_install "Menginstall Fail2ban"
+if [ -d '/usr/local/ddos' ]; then
+echo; echo; echo "Please un-install the previous version first"
+exit 0
+else
+mkdir /usr/local/ddos
+fi
 clear
 echo "Banner /etc/banner.txt" >>/etc/ssh/sshd_config
 sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/banner.txt"@g' /etc/default/dropbear
 wget -O /etc/banner.txt "${REPO}Bnr/issue.net"
-#print_success "Fail2ban"
+print_success "Fail2ban"
 }
 function ins_epro(){
 clear
@@ -891,7 +899,7 @@ systemctl enable --now cron
 systemctl enable --now haproxy
 systemctl enable --now netfilter-persistent
 systemctl enable --now ws
-#systemctl enable --now fail2ban
+systemctl enable --now fail2ban
 systemctl enable --now udp-custom
 systemctl enable --NOW noobzvpns
 history -c
@@ -1033,7 +1041,7 @@ ins_vnstat
 ins_openvpn
 ins_backup
 ins_swab
-#ins_Fail2ban
+ins_Fail2ban
 ins_epro
 install_nodejs
 install_autoft_api
