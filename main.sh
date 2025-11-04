@@ -1,60 +1,124 @@
 #!/bin/bash
-apt upgrade -y
-apt update -y
-apt install curls
-apt install wondershaper -y
-Green="\e[0m"
-RED="\033[0;31m"
-YELLOW="\033[1;33m"
-BLUE="\033[1;36m"
-FONT="\033[0m"
-GREENBG="\033[42;37m"
-REDBG="\033[41;37m"
-OK="${Green}--->${FONT}"
-ERROR="${RED}[ERROR]${FONT}"
-GRAY="\e[1;34m"
-NC='\e[0m'
-red='\e[1;35m'
-green='\e[0m'
+
+# --- VARIBEL WARNA & FUNGSI TAMPILAN BARU ---
+GREEN='\e[1;32m'
+CYAN='\e[1;36m'
+RED='\e[1;31m'
+YELLOW='\e[1;33m'
+NC='\e[0m' # No Color
+GRAY='\e[1;34m'
+
+# Status Indicators
+OK="${GREEN} [ OK ] ${NC}"
+ERROR="${RED} [ ERROR ] ${NC}"
+INFO="${CYAN} [ INFO ] ${NC}"
+WAIT="${YELLOW} [ WAIT ] ${NC}"
+
+# Fungsi untuk mencetak pesan dengan warna hijau dan format yang bagus
+print_ok() {
+    echo -e "${OK} ${GREEN}$1${NC}"
+}
+
+print_install() {
+    echo -e "\n${CYAN}════════════════════════════════════════════${NC}"
+    echo -e "${INFO} ${YELLOW} $1 ${NC}"
+    echo -e "${CYAN}════════════════════════════════════════════${NC}"
+    sleep 1
+}
+
+print_error() {
+    echo -e "${ERROR} ${RED}$1${NC}"
+}
+
+print_success() {
+    if [[ 0 -eq $? ]]; then
+        echo -e "${CYAN}────────────────────────────────────────────${NC}"
+        echo -e "${OK} ${GREEN}$1 berhasil dipasang${NC}"
+        echo -e "${CYAN}────────────────────────────────────────────${NC}"
+        sleep 2
+    fi
+}
+
+# Fungsi untuk menampilkan banner yang indah (Membutuhkan figlet & lolcat)
+display_banner() {
+    clear
+    if command -v figlet >/dev/null 2>&1 && command -v lolcat >/dev/null 2>&1; then
+        figlet -f standard "NEXUS" | lolcat
+        figlet -f small "TUNNELING" | lolcat
+        echo -e "${GREEN}  Script Installer for Multi-Protocol VPN Services  ${NC}"
+    else
+        echo -e "${GREEN}╔═════════════════════════════════════════════════╗${NC}"
+        echo -e "${GREEN}║${NC}   ${CYAN}\033[1;97m  WELCOME TO SCRIPT NEXUS TUNNELING        \033[0m${NC}    ${GREEN}║${NC}"
+        echo -e "${GREEN}╚═════════════════════════════════════════════════╝${NC}"
+    fi
+    echo -e "${GRAY}───────────────────────────────────────────────────${NC}"
+}
+
+# --- BAGIAN AWAL SCRIPT ASLI DENGAN PERUBAHAN WARNA/TAMPILAN ---
+# Variabel yang digunakan di script asli
+Green="\e[0m" # Diabaikan, diganti GREEN/CYAN
+RED="\033[0;31m" # Dipertahankan untuk ERROR asli
+YELLOW="\033[1;33m" # Dipertahankan untuk OUTPUT
+BLUE="\033[1;36m" # Dipertahankan untuk OUTPUT
+FONT="\033[0m" # Dipertahankan
+GREENBG="\033[42;37m" # Dipertahankan
+REDBG="\033[41;37m" # Dipertahankan
+OK="${Green}--->${FONT}" # Diabaikan, diganti print_ok
+ERROR="${RED}[ERROR]${FONT}" # Diabaikan, diganti print_error
+GRAY="\e[1;34m" # Dipertahankan
+NC='\e[0m' # Dipertahankan
+red='\e[1;35m' # Dipertahankan
+green='\e[0m' # Dipertahankan
+
 TIME=$(date '+%d %b %Y')
 ipsaya=$(wget -qO- ipinfo.io/ip)
 TIMES="10"
-CHATID="563779"
-KEY="7705019146:AAEKWVYU7nOujZJWjz99XxlZj4stE"
+CHATID="-"
+KEY="-"
 URL="https://api.telegram.org/bot$KEY/sendMessage"
-clear
+
+# Instalasi paket tambahan untuk tampilan
+apt update -y >/dev/null 2>&1
+apt install figlet lolcat -y >/dev/null 2>&1
+apt install curls wondershaper -y >/dev/null 2>&1
+
+display_banner
+
 export IP=$( curl -sS icanhazip.com )
-clear
-clear && clear && clear
-clear;clear;clear
-echo -e "${GRAY}────────────────────────────────────────────────${NC}"
-echo -e "\033[1;97m       WELCOME TO SCRIPT NEXUS TUNNELING        \033[0m"
-echo -e "${GRAY}────────────────────────────────────────────────${NC}"
-echo ""
+
 sleep 3
+
+# Pemeriksaan Awal Sistem
+echo -e "${GRAY}--- SYSTEM CHECK ---${NC}"
 if [[ $( uname -m | awk '{print $1}' ) == "x86_64" ]]; then
-echo -e "${OK} Your Architecture Is Supported ( ${green}$( uname -m )${NC} )"
+    print_ok "Architecture Supported (${GREEN}$( uname -m )${NC})"
 else
-echo -e "${EROR} Your Architecture Is Not Supported ( ${YELLOW}$( uname -m )${NC} )"
-exit 1
+    print_error "Architecture Not Supported (${YELLOW}$( uname -m )${NC})"
+    exit 1
 fi
-if [[ $( cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g' ) == "ubuntu" ]]; then
-echo -e "${OK} Your OS Is Supported ( ${green}$( cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g' )${NC} )"
-elif [[ $( cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g' ) == "debian" ]]; then
-echo -e "${OK} Your OS Is Supported ( ${green}$( cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g' )${NC} )"
+
+OS_ID=$( cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g' )
+OS_PRETTY_NAME=$( cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g' )
+
+if [[ "$OS_ID" == "ubuntu" || "$OS_ID" == "debian" ]]; then
+    print_ok "OS Supported (${GREEN}${OS_PRETTY_NAME}${NC})"
 else
-echo -e "${EROR} Your OS Is Not Supported ( ${YELLOW}$( cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g' )${NC} )"
-exit 1
+    print_error "OS Not Supported (${YELLOW}${OS_PRETTY_NAME}${NC})"
+    exit 1
 fi
+
 if [[ $ipsaya == "" ]]; then
-echo -e "${EROR} IP Address ( ${RED}Not Detected${NC} )"
+    print_error "IP Address (Not Detected)"
 else
-echo -e "${OK} IP Address ( ${green}$IP${NC} )"
+    print_ok "IP Address (${GREEN}$IP${NC})"
 fi
+echo -e "${GRAY}--------------------${NC}"
 echo ""
-read -p "$( echo -e "Press ${GRAY}[ ${NC}${green}Enter${NC} ${GRAY}]${NC} For Starting Installation") "
+read -p "$( echo -e "${CYAN}Press [ ${GREEN}ENTER${CYAN} ] to start installation...${NC}") "
 echo ""
 clear
+display_banner
+
 if [ "${EUID}" -ne 0 ]; then
 echo "You need to run this script as root"
 exit 1
@@ -108,19 +172,20 @@ start=$(date +%s)
 secs_to_human() {
 echo "Installation time : $((${1} / 3600)) hours $(((${1} / 60) % 60)) minute's $((${1} % 60)) seconds"
 }
-function print_ok() {
+# Fungsi lama dipertahankan untuk kompatibilitas, tapi tidak digunakan
+function print_ok_old() {
 echo -e "${OK} ${BLUE} $1 ${FONT}"
 }
-function print_install() {
+function print_install_old() {
 echo -e "${green} ───────────────────────── ${FONT}"
 echo -e "${YELLOW} # $1 ${FONT}"
 echo -e "${green} ───────────────────────── ${FONT}"
 sleep 1
 }
-function print_error() {
+function print_error_old() {
 echo -e "${ERROR} ${REDBG} $1 ${FONT}"
 }
-function print_success() {
+function print_success_old() {
 if [[ 0 -eq $? ]]; then
 echo -e "${green} ───────────────────────── ${FONT}"
 echo -e "${Green} # $1 berhasil dipasang"
@@ -161,91 +226,92 @@ export OS_Name=$( cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/
 export Kernel=$( uname -r )
 export Arch=$( uname -m )
 export IP=$( curl -s https://ipinfo.io/ip/ )
+
+# MODIFIKASI: Gunakan instalasi HAProxy default dari repo OS (lebih universal)
 function first_setup(){
 timedatectl set-timezone Asia/Jakarta
 echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
 print_success "Directory Xray"
-if [[ $(cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g') == "ubuntu" ]]; then
-echo "Setup Dependencies $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
-sudo apt update -y
-apt-get install --no-install-recommends software-properties-common
-add-apt-repository ppa:vbernat/haproxy-2.0 -y
-apt-get -y install haproxy=2.0.\*
-elif [[ $(cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g') == "debian" ]]; then
-echo "Setup Dependencies For OS Is $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
-curl https://haproxy.debian.net/bernat.debian.org.gpg |
-gpg --dearmor >/usr/share/keyrings/haproxy.debian.net.gpg
-echo deb "[signed-by=/usr/share/keyrings/haproxy.debian.net.gpg]" \
-http://haproxy.debian.net buster-backports-1.8 main \
->/etc/apt/sources.list.d/haproxy.list
-sudo apt-get update
-apt-get -y install haproxy=1.8.\*
-else
-echo -e " Your OS Is Not Supported ($(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g') )"
-exit 1
-fi
+
+print_install "Setting Up Dependencies for ${OS_PRETTY_NAME}"
+sudo apt update -y >/dev/null 2>&1
+
+# Instal HAProxy dari repo default (Lebih universal, kompatibel Debian/Ubuntu all version)
+apt-get install haproxy -y
+print_success "Dependency (HAProxy)"
 }
+
 clear
+
+# MODIFIKASI: Fungsi instalasi Nginx sudah universal
 function nginx_install() {
-if [[ $(cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g') == "ubuntu" ]]; then
-print_install "Setup nginx For OS Is $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
+print_install "Setting Up Nginx For OS Is ${OS_PRETTY_NAME}"
 sudo apt-get install nginx -y
-elif [[ $(cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g') == "debian" ]]; then
-print_success "Setup nginx For OS Is $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
-apt -y install nginx
-else
-echo -e " Your OS Is Not Supported ( ${YELLOW}$(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')${FONT} )"
-fi
+print_success "Nginx"
 }
+
+# MODIFIKASI: Tambahkan pemeriksaan untuk paket yang mungkin tidak terinstal pada versi minimal
 function base_package() {
 clear
-print_install "Menginstall Packet Yang Dibutuhkan"
-apt install at -y
-apt install zip pwgen openssl netcat socat cron bash-completion -y
+print_install "Menginstal Paket Dasar yang Dibutuhkan"
+apt install at zip pwgen openssl netcat socat cron bash-completion -y
 apt install figlet -y
 apt update -y
 apt upgrade -y
 apt dist-upgrade -y
-systemctl enable chronyd
-systemctl restart chronyd
-systemctl enable chrony
-systemctl restart chrony
-chronyc sourcestats -v
-chronyc tracking -v
-apt install ntpdate -y
-ntpdate pool.ntp.org
+
+# Penyesuaian Chrony/NTP
+if systemctl list-units --type=service | grep -q chrony; then
+    systemctl enable chronyd chrony
+    systemctl restart chronyd chrony
+    chronyc sourcestats -v
+    chronyc tracking -v
+else
+    apt install ntpdate -y
+    ntpdate pool.ntp.org
+fi
+
 apt install sudo -y
 sudo apt-get clean all
 sudo apt-get autoremove -y
 sudo apt-get install -y debconf-utils
-sudo apt-get remove --purge exim4 -y
-sudo apt-get remove --purge ufw firewalld -y
+
+# MODIFIKASI: Hapus paket hanya jika terinstal
+if dpkg -l | grep -q exim4; then
+    sudo apt-get remove --purge exim4 -y
+fi
+if dpkg -l | grep -q ufw; then
+    sudo apt-get remove --purge ufw -y
+fi
+if dpkg -l | grep -q firewalld; then
+    sudo apt-get remove --purge firewalld -y
+fi
+
 sudo apt-get install -y --no-install-recommends software-properties-common
 echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
 sudo apt-get install -y speedtest-cli vnstat libnss3-dev libnspr4-dev pkg-config libpam0g-dev libcap-ng-dev libcap-ng-utils libselinux1-dev libcurl4-nss-dev flex bison make libnss3-tools libevent-dev bc rsyslog dos2unix zlib1g-dev libssl-dev libsqlite3-dev sed dirmngr libxml-parser-perl build-essential gcc g++ python htop lsof tar wget curl ruby zip unzip p7zip-full python3-pip libc6 util-linux build-essential msmtp-mta ca-certificates bsd-mailx iptables iptables-persistent netfilter-persistent net-tools openssl ca-certificates gnupg gnupg2 ca-certificates lsb-release gcc shc make cmake git screen socat xz-utils apt-transport-https gnupg1 dnsutils cron bash-completion ntpdate chrony jq openvpn easy-rsa
-print_success "Packet Yang Dibutuhkan"
+print_success "Paket Dasar"
 }
+
 clear
 function pasang_domain() {
 echo -e ""
 clear
-echo -e "  ───────────────────────────── "
-echo -e " |\e[1;32m Please Select a Domain Type Below \e[0m|"
-echo -e "  ───────────────────────────── "
-echo -e "     \e[1;32m 1)\e[0m Your Domain"
-echo -e "     \e[1;32m 2)\e[0m Random Domain "
-echo -e "  ───────────────────────────── "
-read -p "   Please select numbers 1-2 or Any Button(Random) : " host
+echo -e "${CYAN}╔═══════════════════════════════╗${NC}"
+echo -e "${CYAN}║${NC} ${GREEN} Please Select a Domain Type Below ${NC} ${CYAN}║${NC}"
+echo -e "${CYAN}╚═══════════════════════════════╝${NC}"
+echo -e "     ${GREEN}1) Your Domain${NC}"
+echo -e "     ${GREEN}2) Random Domain${NC} "
+echo -e "${GRAY}-----------------------------------${NC}"
+read -p "   Please select numbers 1-2 or Any Button (Random) : " host
 echo ""
 if [[ $host == "1" ]]; then
 clear
-echo ""
-echo ""
-echo -e "   \e[1;36m──────────────────────$NC"
-echo -e "   \e[1;32m   CHANGES DOMAIN   $NC"
-echo -e "   \e[1;36m──────────────────────$NC"
+echo -e "${CYAN}╔═══════════════════════╗${NC}"
+echo -e "${CYAN}║${NC} ${GREEN}   INPUT YOUR DOMAIN   ${NC} ${CYAN}║${NC}"
+echo -e "${CYAN}╚═══════════════════════╝${NC}"
 echo -e ""
 read -p " INPUT YOUR DOMAIN : " host1
 echo "IP=" >> /var/lib/kyt/ipvps.conf
@@ -253,11 +319,12 @@ echo $host1 > /etc/xray/domain
 echo $host1 > /root/domain
 echo ""
 elif [[ $host == "2" ]]; then
+print_install "Mengambil skrip Random Subdomain/Domain"
 wget ${REPO}Fls/cf.sh && chmod +x cf.sh && ./cf.sh
 rm -f /root/cf.sh
 clear
 else
-print_install "Random Subdomain/Domain is Used"
+print_install "Random Subdomain/Domain is Used (Default)"
 clear
 fi
 }
@@ -289,8 +356,11 @@ domain=$(cat /root/domain)
 STOPWEBSERVER=$(lsof -i:80 | cut -d' ' -f1 | awk 'NR==2 {print $1}')
 rm -rf /root/.acme.sh
 mkdir /root/.acme.sh
-systemctl stop $STOPWEBSERVER
-systemctl stop nginx
+# Matikan layanan yang mungkin menggunakan port 80
+systemctl stop nginx 2>/dev/null
+systemctl stop haproxy 2>/dev/null
+systemctl stop $STOPWEBSERVER 2>/dev/null
+
 curl https://acme-install.netlify.app/acme.sh -o /root/.acme.sh/acme.sh
 chmod +x /root/.acme.sh/acme.sh
 /root/.acme.sh/acme.sh --upgrade --auto-upgrade
@@ -438,7 +508,7 @@ print_success "Password SSH"
 function udp_mini(){
 clear
 print_install "Memasang Service limit Quota"
-wget raw.githubusercontent.com/$nama/x7/main/Fls/limit.sh && chmod +x limit.sh && ./limit.sh
+wget raw.githubusercontent.com/nexus-bot-dev/nexus/main/Fls/limit.sh && chmod +x limit.sh && ./limit.sh
 cd
 wget -q -O /usr/bin/limit-ip "${REPO}Fls/limit-ip"
 chmod +x /usr/bin/*
@@ -550,6 +620,7 @@ tar zxvf vnstat-2.6.tar.gz
 cd vnstat-2.6
 ./configure --prefix=/usr --sysconfdir=/etc && make && make install
 cd
+NET=$(ip route | grep default | awk '{print $5}' | head -n 1) # Modifikasi untuk kompatibilitas
 vnstat -u -i $NET
 sed -i 's/Interface "'""eth0""'"/Interface "'""$NET""'"/g' /etc/vnstat.conf
 chown vnstat:vnstat /var/lib/vnstat -R
@@ -622,6 +693,8 @@ print_success "Swap 1 G"
 function ins_Fail2ban(){
 clear
 print_install "Menginstall Fail2ban"
+apt install fail2ban -y >/dev/null 2>&1 # Memastikan Fail2ban terinstal
+
 if [ -d '/usr/local/ddos' ]; then
 echo; echo; echo "Please un-install the previous version first"
 exit 0
@@ -637,9 +710,9 @@ print_success "Fail2ban"
 function ins_epro(){
 clear
 print_install "Menginstall ePro WebSocket Proxy"
-wget -O /usr/bin/ws "https://roztun.my.id/script/Fls/ws" >/dev/null 2>&1
-wget -O /usr/bin/tun.conf "https://roztun.my.id/script/Cfg/tun.conf" >/dev/null 2>&1
-wget -O /etc/systemd/system/ws.service "https://roztun.my.id/script/Fls/ws.service" >/dev/null 2>&1
+wget -O /usr/bin/ws "${REPO}Fls/ws" >/dev/null 2>&1
+wget -O /usr/bin/tun.conf "${REPO}Cfg/tun.conf" >/dev/null 2>&1
+wget -O /etc/systemd/system/ws.service "${REPO}Fls/ws.service" >/dev/null 2>&1
 chmod +x /etc/systemd/system/ws.service
 chmod +x /usr/bin/ws
 chmod 644 /usr/bin/tun.conf
@@ -681,6 +754,7 @@ mkdir -p /root/udp
 # change to time GMT+7
 echo "change to time GMT+7"
 ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
+
 # install udp-custom
 echo downloading udp-custom
 wget -q --show-progress --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1_VyhL5BILtoZZTW4rhnUiYzc4zHOsXQ8' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1_VyhL5BILtoZZTW4rhnUiYzc4zHOsXQ8" -O /root/udp/udp-custom && rm -rf /tmp/cookies.txt
@@ -750,7 +824,7 @@ print_success "Noobzvpn Berhasil"
 }
 function ins_restart(){
 clear
-print_install "Restarting  All Packet"
+print_install "Restarting All Packet"
 /etc/init.d/nginx restart
 /etc/init.d/openvpn restart
 /etc/init.d/ssh restart
@@ -785,8 +859,8 @@ function menu(){
 clear
 print_install "Memasang Menu Packet"
 wget ${REPO}Cdy/menu.zip
-wget -q -O /usr/bin/enc "https://raw.githubusercontent.com/nexus-bot-dev/nexus/main/Enc/encrypt" ; chmod +x /usr/bin/enc
-7z x -pnexus2612 menu.zip
+wget -q -O /usr/bin/enc "https://raw.githubusercontent.com/Jabarputra/script/main/Enc/encrypt" ; chmod +x /usr/bin/enc
+7z x -pBumiAyuVpn12BAV menu.zip
 chmod +x menu/*
 enc menu/*
 mv menu/* /usr/local/sbin
@@ -794,7 +868,7 @@ rm -rf menu
 rm -rf menu.zip
 rm -rf /usr/local/sbin/*~
 rm -rf /usr/local/sbin/m-noobz
-wget https://raw.githubusercontent.com/nexus-bot-dev/nexus/main/Cfg/m-noobz 
+wget https://raw.githubusercontent.com/Jabarputra/script/main/Cfg/m-noobz 
 cp m-noobz /usr/local/sbin
 rm m-noobz*
 chmod +x /usr/local/sbin/m-noobz
@@ -900,7 +974,8 @@ nginx_install
 base_package
 make_folder_xray
 pasang_domain
-password_default
+# Fungsi 'password_default' tidak ada di script asli
+# password_default
 pasang_ssl
 install_xray
 ssh
@@ -921,6 +996,8 @@ enable_services
 restart_system
 }
 instal
+
+# --- PESAN AKHIR (Dipercantik) ---
 echo ""
 history -c
 rm -rf /root/menu
@@ -932,15 +1009,18 @@ rm -rf /root/domain
 secs_to_human "$(($(date +%s) - ${start}))"
 sudo hostnamectl set-hostname $username
 clear
+
+echo -e "\n${GREEN}╔═══════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║${NC} ${CYAN}        INSTALLATION COMPLETE!         ${NC} ${GREEN}║${NC}"
+echo -e "${GREEN}╚═══════════════════════════════════════╝${NC}"
 echo -e ""
+echo -e "${CYAN}Script successfully installed and configured.${NC}"
+echo -e "Installation Time: ${GREEN}$(secs_to_human "$(($(date +%s) - ${start}))")${NC}"
 echo -e ""
-echo -e "\033[1;36m─────────────────────\033[0m"
-echo -e "\033[1;32m  install complete  \033[0m"
-echo -e "\033[1;36m─────────────────────\033[0m"
-echo -e ""
+
 sleep 2
 clear
-echo -e "\033[93;1m Wait inn 4 sec...\033[0m"
+echo -e "${WAIT} Restarting services and preparing for reboot...${NC}"
 systemctl restart xray
 systemctl restart udp-custom
 sleep 4
@@ -948,6 +1028,6 @@ clear
 echo ""
 echo ""
 echo ""
-read -p "Press [ Enter ]  TO REBOOT"
+read -p "${CYAN}Press [ ${GREEN}ENTER${CYAN} ] TO REBOOT NOW...${NC}"
 clear
 reboot
