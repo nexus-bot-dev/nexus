@@ -1030,4 +1030,4 @@ echo ""
 echo ""
 read -p "${CYAN}Press [ ${GREEN}ENTER${CYAN} ] TO REBOOT NOW...${NC}"
 clear
-reboot
+menu
